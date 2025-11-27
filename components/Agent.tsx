@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from "react";
 import { interviewer } from "@/constants";
+import { createFeedback } from "@/lib/actions/general.action";
 
 
 enum CallStatus {
@@ -88,10 +89,12 @@ const Agent = ({
   const handleGenerateFeedback = async (messages: SavedMessage[]) =>{
     console.log('Generate Feedback here');
 
-    const {success, id} = {
-      success: true,
-      id: 'feedback-id'
-    }
+    const { success, feedbackId: id } = await createFeedback({
+        interviewId: interviewId!,
+        userId: userId!,
+        transcript: messages,
+        // feedbackId,
+      });
 
     if (success && id) {
         router.push(`/interview/${interviewId}/feedback`);
