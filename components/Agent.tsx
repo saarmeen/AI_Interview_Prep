@@ -85,13 +85,31 @@ const Agent = ({
   }, []);
 
 
+  const handleGenerateFeedback = async (messages: SavedMessage[]) =>{
+    console.log('Generate Feedback here');
+
+    const {success, id} = {
+      success: true,
+      id: 'feedback-id'
+    }
+
+    if (success && id) {
+        router.push(`/interview/${interviewId}/feedback`);
+      }else {
+        console.log("Error saving feedback");
+        router.push("/");
+      } 
+  }
+
   useEffect(() => {
     if (callStatus === CallStatus.FINISHED) {
       if (type === "generate") {
         router.push("/");
+      }else {
+        handleGenerateFeedback(messages);
       }
     }
-  }, [messages, callStatus, type, userId]);
+  }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
 
 
 
@@ -134,9 +152,14 @@ const Agent = ({
         }
       );
     } else {
-      // 🔹 START ASSISTANT (old branch – if you still use an interviewer assistant)
-      const formattedQuestions =
-        questions?.map((q) => `- ${q}`).join("\n") || "";
+      // 🔹 START ASSISTANT (old interviewer flow)
+      let formattedQuestions = "";
+
+      if (questions && questions.length > 0) {
+        formattedQuestions = questions
+          .map((question) => `- ${question}`)
+          .join("\n");
+      }
 
       await vapi.start(interviewer, {
         variableValues: { questions: formattedQuestions },
@@ -147,6 +170,7 @@ const Agent = ({
     setCallStatus(CallStatus.FINISHED);
   }
 };
+
 
   const handleDisconnect = () => {
     setCallStatus(CallStatus.FINISHED);
